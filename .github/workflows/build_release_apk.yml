@@ -1,4 +1,4 @@
-name: Build release APK
+name: Build release APK and Publish Release
 
 on:
   workflow_dispatch:
@@ -40,6 +40,7 @@ jobs:
         with:
           name: Release APK
           path: app/build/outputs/apk/app/release/*.apk
+
   publish-release:
     runs-on: ubuntu-latest
     needs: build-release-apk
@@ -52,19 +53,17 @@ jobs:
       - name: Get version and changelog
         id: version
         run: |
-          version=$(grep "versionName" app/build.gradle.kts | cut -d '"' -f 2)
-          changelog=$(awk '/^## /{f=1}f' CHANGELOG.md)
-          echo "::set-output name=version::$version"
-          echo "::set-output name=changelog::$changelog"
+          echo "VERSION=$(grep \"versionName\" app/build.gradle.kts | cut -d '\"' -f 2)" >> $GITHUB_ENV
+          echo "CHANGELOG=$(awk '/^## /{f=1}f' CHANGELOG.md)" >> $GITHUB_ENV
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ steps.version.outputs.version }}
-          release_name: Release ${{ steps.version.outputs.version }}
-          body: ${{ steps.version.outputs.changelog }}
+          tag_name: ${{ env.VERSION }}
+          release_name: Release ${{ env.VERSION }}
+          body: ${{ env.CHANGELOG }}
       - name: Upload artifact
         uses: actions/upload-release-asset@v1
         env:
@@ -74,11 +73,10 @@ jobs:
           asset_path: app/build/outputs/apk/app/release/*.apk
           asset_name: Release.apk
           asset_content_type: application/vnd.android.package-archive
-          
+
   send-notifications:
     runs-on: ubuntu-latest
     needs: publish-release
-    #needs: build-release-apk
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
