@@ -25,7 +25,7 @@ jobs:
           gradle-home-cache-cleanup: true
       - name: Extract version from build.gradle.kts
         id: extract_version
-        run: echo "::set-output name=version::$(grep -oP '(?<=version ).*(?=\")' build.gradle.kts)"
+        run: echo "::set-output name=version::$(grep -oP '(?<=version ).*(?=\")' app/build.gradle.kts)"
       - name: Write sign info
         if: github.repository_owner == 'LawnchairLauncher'
         run: |
