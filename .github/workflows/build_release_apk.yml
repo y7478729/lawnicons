@@ -23,9 +23,16 @@ jobs:
         with:
           cache-encryption-key: Da25KUVSE5jbGds2zXmfXw==
           gradle-home-cache-cleanup: true
+      - name: List files in app directory
+        run: ls -la app
       - name: Extract version from build.gradle.kts
         id: extract_version
-        run: echo "::set-output name=version::$(grep -oP '(?<=version ).*(?=\")' app/build.gradle.kts)"
+        run: |
+          echo "Contents of app/build.gradle.kts:"
+          cat app/build.gradle.kts
+          version=$(grep -oP '(?<=version ).*(?=\")' app/build.gradle.kts)
+          echo "Extracted version: $version"
+          echo "::set-output name=version::$version"
       - name: Write sign info
         if: github.repository_owner == 'LawnchairLauncher'
         run: |
