@@ -21,10 +21,10 @@ jobs:
 
       - name: Extract version from build.gradle.kts
         id: extract_version
-        run: echo "::set-output name=version::$(grep -oP 'version = \"\K[^\"]+' build.gradle.kts)"
+        run: echo "::set-output name=version::$(grep -oP 'version = \"\K[^\"]+' app/build.gradle.kts)"
 
       - name: Build release APK
-        run: ./gradlew assembleRelease
+        run: ./gradlew app:assembleRelease
 
       - name: Create release
         id: create_release
